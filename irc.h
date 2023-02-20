@@ -13,7 +13,7 @@
 
 void raw(int conn,char *fmt, ...);
 
-void privmsg(int conn,char *dst,char *fmt, ...);
+void privmsg(int conn,const char *dst,const char *fmt, ...);
 
 
 
@@ -25,7 +25,7 @@ int Irc_Connect(const char *host, const char *service);
 
 int Irc_Recv( int fd, char *bufptr, size_t len );
 
-int Irc_Send(int sockfd, const char *data, int datalen);
+int Irc_Send(int sockfd, char *data, int datalen);
 
 
 
@@ -90,7 +90,7 @@ int Irc_Connect(const char *host, const char *service) {
 
 
 
-int Irc_Send(int sockfd, const char *data, int datalen) {
+int Irc_Send(int sockfd, char *data, int datalen) {
     int total_bytes_sent = 0;
     int n;
 
@@ -174,7 +174,7 @@ void raw(int conn,char *fmt, ...) {
 
 
 
-void privmsg(int conn,char *dst,char *fmt, ...) {
+void privmsg(int conn,const char *dst,const char *fmt, ...) {
 	char p[STRING_MAX];
 	char b[256],c[STRING_MAX];
 	size_t i,j;
@@ -183,8 +183,6 @@ void privmsg(int conn,char *dst,char *fmt, ...) {
 	va_start(ap, fmt);
 	vsnprintf(p, STRING_MAX, fmt, ap);
 	va_end(ap);
-
-	printf("<< %s", p);
 
 	j=0;
 	while(p[j]) {
@@ -197,7 +195,6 @@ void privmsg(int conn,char *dst,char *fmt, ...) {
 		b[i]='\0';				
 		sprintf(c,"PRIVMSG %s :%s\r\n",dst,b);
 		Irc_Send(conn,c,strlen(c));
-		sleep(5);
 	}
 
 }

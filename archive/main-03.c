@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <errno.h>
@@ -41,7 +40,6 @@
 #include "re.h"
 
 
-
 #define BRAIN_FILE "brain.csv"
 
 #define BUF_MAX 512
@@ -68,10 +66,12 @@ int main(void) {
 	char buf[BUF_MAX];
 	size_t buflen=BUF_MAX;
 
+
 	Brain **brains=NULL;
 	size_t nbrains=0;
 
 	size_t bi=0,si=0;
+
 
 
 	srand(time(NULL));
@@ -177,8 +177,10 @@ int main(void) {
 
 					if(msg && *msg) {
 
-						si=bi;
+						int midx=0;
+						int mlen=0;
 
+						si=bi;
 
 						do {
 
@@ -186,16 +188,15 @@ int main(void) {
 						
 							if(bi>=nbrains) bi=0;
 
-							if(strcasestr(msg,brains[bi]->lines[0])) {
-
-								privmsg(sck,chn,"%s\n",brains[bi]->lines[1]);
-							
+							if((midx=re_match(brains[bi]->lines[0],msg,&mlen))!=-1) {
+								privmsg(sck,chn,"%s\n",brains[bi]->lines[randi2(1,brains[bi]->nlines-1)]);
 								break;
 							}						
 
 						} while(bi!=si);
 						
 					}
+
 
   			}
 

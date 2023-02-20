@@ -1,11 +1,11 @@
+#ifndef CSV_H
+#define CSV_H
+
+
+
 #include <stdio.h>
-
-
-
-#include "common.h"
-
-#define STRUTIL_IMPLEMENTATION
-#include "strutil.h"
+#include <stdlib.h>
+#include <string.h>
 
 
 
@@ -17,12 +17,18 @@ typedef enum ParserState {
 
 
 
-void csvaddline(char ***lines,size_t *nlines,char *line) {
+#ifdef CSV_IMPLEMENTATION
+
+
+
+void CSV_AddLine(char ***lines,size_t *nlines,char *line) {
   (*lines)=realloc(*lines,sizeof(**lines)*(*nlines+1));  
   (*lines)[(*nlines)++]=strdup(line);
 }
  
-void csvparse(char ***lines,size_t *nlines,char *line) {
+
+
+void CSV_Parse(char ***lines,size_t *nlines,char *line) {
   ParserState parserState=PARSERSTATE_DEFAULT;
   char *p=line;
   char text[STRING_MAX];
@@ -55,7 +61,7 @@ void csvparse(char ***lines,size_t *nlines,char *line) {
           } else strcat(text,(char[2]){*p,'\0'});
           p++;
         }
-        csvaddline(lines,nlines,text);
+        CSV_AddLine(lines,nlines,text);
         text[0]='\0';
         parserState=PARSERSTATE_DEFAULT;
       break;
@@ -65,14 +71,18 @@ void csvparse(char ***lines,size_t *nlines,char *line) {
   }
 }
 
-void csvprint(char **lines,size_t nlines) {
+
+
+void CSV_Print(char **lines,size_t nlines) {
   for(size_t i=0;i<nlines;i++) {
     printf("%s\n",lines[i]);
   }
   printf("\n");
 }
 
-void csvfree(char ***lines,size_t *nlines) {
+
+
+void CSV_Free(char ***lines,size_t *nlines) {
   for(size_t i=0;i<(*nlines);i++) {
     free((*lines)[i]);
     (*lines)[i]=NULL;
@@ -84,92 +94,10 @@ void csvfree(char ***lines,size_t *nlines) {
 
 
 
-typedef struct Brain Brain;
-
-struct Brain {
-  char **lines;
-  size_t nlines;
-};
-
-Brain **brains=NULL;
-size_t nbrains=0;
-
-Brain *Brain_New(char **lines,size_t nlines) {
-  Brain *brain=malloc(sizeof(*brain));
-  if(brain) {
-    brain->lines=lines;
-    brain->nlines=nlines;
-  }
-  return brain;
-}
-
-void Brain_Add(Brain ***brains,size_t *nbrains,Brain *brain) {
-  (*brains)=realloc(*brains,sizeof(**brains)*((*nbrains)+1));
-  (*brains)[(*nbrains)++]=brain;
-}
-
-void Brain_Print(Brain *brain) {
-  csvprint(brain->lines,brain->nlines);
-}
-
-void Brains_Print(Brain **brains,size_t nbrains) {
-  for(size_t i=0;i<nbrains;i++) {
-    Brain_Print(brains[i]);
-  }
-}
-
-void Brain_Free(Brain **brain) {
-  csvfree(&(*brain)->lines,&(*brain)->nlines);
-  free(*brain);
-  (*brain)=NULL;
-}
-
-void Brains_Free(Brain ***brains,size_t *nbrains) {
-  for(size_t i=0;i<(*nbrains);i++) {
-    Brain_Free(&(*brains)[i]);
-  } 
-  free(*brains);
-  (*brains)=NULL;
-  (*nbrains)=0;
-}
+#endif
 
 
 
-int main(void) {
-
-  char *line=NULL;
-  size_t llen=0;
-  ssize_t rlen=0;
-
-  char **lines=NULL;
-  size_t nlines=0;
-  
-  while((rlen=getline(&line,&llen,stdin))>0) {
-
-    csvparse(&lines,&nlines,line);
-
-    Brain_Add(&brains,&nbrains,Brain_New(lines,nlines));
-
-    lines=NULL;
-    nlines=0;
-
-    free(line);
-    line=NULL;
-    llen=0;
-    rlen=0;
-  }
-
-  free(line);
-  line=NULL;
-  llen=0;
-  rlen=0;
-
-  Brains_Print(brains,nbrains);
-
-  Brains_Free(&brains,&nbrains);
-
-  return 0;
-}
-
+#endif
 
 
