@@ -47,7 +47,7 @@
 #define BUF_MAX 512
 
 
-
+const char *mst = "siesta";
 const char *hst = "irc.dal.net";
 const char *prt = "6667";
 const char *nck = "mia";
@@ -60,6 +60,47 @@ int sck;
 
 
 
+Brain **brains=NULL;
+size_t nbrains=0;
+
+size_t bi=0,si=0;
+
+
+
+void reply(char *cmd,char *src,char *dst,char *msg) {
+	if(msg && *msg) {
+
+		if(!strcasecmp(mst,src)) {
+			if(!strncasecmp(msg,".add",4)) {
+				char *txt=trim(msg+4);		
+				FILE *fout=fopen(BRAIN_FILE,"a");
+				char **lines=NULL;
+				size_t nlines=0;
+				if(fprintf(fout,"%s\n",txt)==(int)strlen(txt)+1) {
+					privmsg(sck,chn,"%s: data added",src);
+					CSV_Parse(&lines,&nlines,txt);
+					Brain_Add(&brains,&nbrains,Brain_New(lines,nlines));
+					return;
+				}
+				fclose(fout);
+			}
+		}
+		
+		si=bi;
+		do {
+			bi++;
+			if(bi>=nbrains) bi=0;
+			if(strcasestr(msg,brains[bi]->lines[0])) {
+				privmsg(sck,chn,"%s\n",brains[bi]->lines[1]);							
+				break;
+			}						
+		} while(bi!=si);
+
+	}
+}
+
+
+
 int main(void) {
 	char *src, *dst, *cmd, *msg, *sep;
 
@@ -68,15 +109,7 @@ int main(void) {
 	char buf[BUF_MAX];
 	size_t buflen=BUF_MAX;
 
-	Brain **brains=NULL;
-	size_t nbrains=0;
-
-	size_t bi=0,si=0;
-
-
 	srand(time(NULL));
-
-
 
 	Brain_Load(&brains,&nbrains,BRAIN_FILE);
 	
@@ -175,25 +208,9 @@ int main(void) {
 
           printf("%s <%s> %s",dst,src,msg);
 
-					if(msg && *msg) {
+					if(msg && *msg && !strncmp(msg,"mia:",4)) {
 
-						si=bi;
-
-
-						do {
-
-							bi++;
-						
-							if(bi>=nbrains) bi=0;
-
-							if(strcasestr(msg,brains[bi]->lines[0])) {
-
-								privmsg(sck,chn,"%s\n",brains[bi]->lines[1]);
-							
-								break;
-							}						
-
-						} while(bi!=si);
+						reply(cmd,src,dst,trim(msg+4));
 						
 					}
 

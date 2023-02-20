@@ -82,6 +82,8 @@ void Brain_Load(Brain ***brains,size_t *nbrains,char *filename) {
   llen=0;
   rlen=0;
 
+	fclose(fin);
+
 }
 
 
