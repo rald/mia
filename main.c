@@ -68,33 +68,46 @@ size_t bi=0,si=0;
 
 
 void reply(char *cmd,char *src,char *dst,char *msg) {
+	bool found=false;
+
 	if(msg && *msg) {
 
-		if(!strcasecmp(mst,src)) {
-			if(!strncasecmp(msg,".add",4)) {
+//		if(!strcasecmp(mst,src)) {
+			if(!strncmp(msg,".add",4)) {
 				char *txt=trim(msg+4);		
 				FILE *fout=fopen(BRAIN_FILE,"a");
 				char **lines=NULL;
 				size_t nlines=0;
 				if(fprintf(fout,"%s\n",txt)==(int)strlen(txt)+1) {
-					privmsg(sck,chn,"%s: data added",src);
 					CSV_Parse(&lines,&nlines,txt);
 					Brain_Add(&brains,&nbrains,Brain_New(lines,nlines));
-					return;
+					privmsg(sck,chn,"%s: data added",src);
 				}
 				fclose(fout);
+				return;
 			}
+//		}
+
+		found=false;
+
+		if(strcasestr(msg,nck)) {		
+			si=bi;
+			do {
+				bi++;
+				if(bi>=nbrains) bi=0;
+				if(strcasestr(msg,brains[bi]->lines[0])) {
+					found = true;
+					privmsg(sck,chn,"%s: %s\n",src,brains[bi]->lines[1]);							
+					break;
+				}						
+			} while(bi!=si);
+
+			/*
+			if(!found) {
+				privmsg(sck,chn,"%s: huh?\n",src);
+			}
+			*/
 		}
-		
-		si=bi;
-		do {
-			bi++;
-			if(bi>=nbrains) bi=0;
-			if(strcasestr(msg,brains[bi]->lines[0])) {
-				privmsg(sck,chn,"%s\n",brains[bi]->lines[1]);							
-				break;
-			}						
-		} while(bi!=si);
 
 	}
 }
@@ -208,9 +221,9 @@ int main(void) {
 
           printf("%s <%s> %s",dst,src,msg);
 
-					if(msg && *msg && !strncmp(msg,"mia:",4)) {
+					if(msg && *msg) {
 
-						reply(cmd,src,dst,trim(msg+4));
+						reply(cmd,src,dst,trim(msg));
 						
 					}
 
