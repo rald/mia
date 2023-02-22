@@ -95,7 +95,7 @@ void reply(char *cmd,char *src,char *dst,char *msg) {
 			do {
 				bi++;
 				if(bi>=nbrains) bi=0;
-				if(strcasestr(msg,brains[bi]->lines[0])) {
+				if(brains[bi]->nlines==2 && strcasestr(msg,brains[bi]->lines[0])) {
 					found = true;
 					privmsg(sck,chn,"%s: %s\n",src,brains[bi]->lines[1]);							
 					break;
