@@ -217,6 +217,8 @@ void parsein(IrcMsg *im) {
 
 	char *msg=strdup(im->txt);
 
+	trim(msg);
+
 	if(!strcmp(msg,".start")) {
 
 		if(gameState==GAMESTATE_INIT) {
@@ -277,7 +279,7 @@ void parsein(IrcMsg *im) {
 
 		char nn[STRING_MAX];
 
-		if(strcmp(msg,".score")) {
+		if(!strcmp(msg,".score")) {
 			ssize_t k=Player_Find(players,nplayers,im->usr);
 
 			if(k==-1) {
@@ -289,7 +291,7 @@ void parsein(IrcMsg *im) {
 		} else if(sscanf(msg,".score %s",nn)==1) {
 			ssize_t k=Player_Find(players,nplayers,nn);
 			if(k==-1) {
-				notice(sck,im->usr,GAME_TITLE" %s: player not found",im->usr);
+				notice(sck,im->usr,GAME_TITLE" %s: player %s not found",im->usr,nn);
 			} else {
 				notice(sck,im->usr,GAME_TITLE" %s: score of %s is %zu",im->usr,players[k]->nick,players[k]->score);
 			}
