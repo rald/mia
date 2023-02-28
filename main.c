@@ -293,7 +293,10 @@ void parsein(IrcMsg *im) {
 			if(k==-1) {
 				notice(sck,im->usr,GAME_TITLE" %s: player %s not found",im->usr,nn);
 			} else {
-				notice(sck,im->usr,GAME_TITLE" %s: score of %s is %zu",im->usr,players[k]->nick,players[k]->score);
+				if(!strcasecmp(nn,players[k]->nick)) 
+					notice(sck,im->usr,GAME_TITLE" %s: your score is %zu",players[k]->nick,players[k]->score);
+				else			
+					notice(sck,im->usr,GAME_TITLE" %s: score of %s is %zu",im->usr,players[k]->nick,players[k]->score);
 			}
 		} 
 	
