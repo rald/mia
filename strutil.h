@@ -11,6 +11,7 @@ char *trim(char *a);
 void tokenize(char ***tokens,size_t *ntokens,char *s,char *d);
 void tokfree(char ***tokens,size_t *ntokens);
 char *rmnl(char *s);
+char *rmcrnl(char *s);
 char *skip(char *s, char c);
 char *escape(char *s);
 char *unescape(char *s);
@@ -56,6 +57,12 @@ void tokfree(char ***tokens,size_t *ntokens) {
 
 char *rmnl(char *s) {
   char *p=strchr(s,'\n');
+  if(p) *p='\0';
+  return s;
+}
+
+char *rmcrnl(char *s) {
+  char *p=strstr(s,"\r\n");
   if(p) *p='\0';
   return s;
 }

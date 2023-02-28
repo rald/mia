@@ -15,7 +15,7 @@ void raw(int conn,char *fmt, ...);
 
 void privmsg(int conn,const char *dst,const char *fmt, ...);
 
-
+void notice(int conn,const char *dst,const char *fmt, ...);
 
 void DieWithUserMessage(const char *msg, const char *detail);
 
@@ -23,10 +23,11 @@ void DieWithSystemMessage(const char *msg);
 
 int Irc_Connect(const char *host, const char *service);
 
-int Irc_Recv( int fd, char *bufptr, size_t len );
+int readline( int fd, char *bufptr, size_t len );
 
 int Irc_Send(int sockfd, char *data, int datalen);
 
+int Irc_Recv(int sockfd, char *data, int datalen);
 
 
 #ifdef IRC_IMPLEMENTATION
@@ -108,6 +109,13 @@ int Irc_Send(int sockfd, char *data, int datalen) {
 
 
 
+int Irc_Recv(int sockfd, char *data, int datalen) {
+	int ret=readline(sockfd,data,datalen);
+	if(ret>0) printf(">> %s",data);
+	return ret;
+}
+
+
 /* readline - read a '\n' terminated line from socket fd 
               into buffer bufptr of size len. The line in the
               buffer is terminated with '\0'.
@@ -115,7 +123,7 @@ int Irc_Send(int sockfd, char *data, int datalen) {
               the capacity of the buffer is exceeded.
 	      It returns 0 if EOF is encountered before reading '\n'.
  */
-int Irc_Recv( int fd, char *bufptr, size_t len )
+int readline( int fd, char *bufptr, size_t len )
 {
   /* Note that this function is very tricky.  It uses the
      static variables bp, cnt, and b to establish a local buffer.
@@ -199,6 +207,32 @@ void privmsg(int conn,const char *dst,const char *fmt, ...) {
 
 }
 
+
+
+void notice(int conn,const char *dst,const char *fmt, ...) {
+	char p[STRING_MAX];
+	char b[256],c[STRING_MAX];
+	size_t i,j;
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(p, STRING_MAX, fmt, ap);
+	va_end(ap);
+
+	j=0;
+	while(p[j]) {
+		i=0;
+		while(i<255 && p[j]) {
+			b[i]=p[j];
+			i++;
+			j++;
+		}
+		b[i]='\0';				
+		sprintf(c,"NOTICE %s :%s\r\n",dst,b);
+		Irc_Send(conn,c,strlen(c));
+	}
+
+}
 
 
 #endif
