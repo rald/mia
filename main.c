@@ -273,6 +273,28 @@ void parsein(IrcMsg *im) {
 		} else {
 			notice(sck,im->usr,GAME_TITLE" %s: game is not started",im->usr);
 		}
+	} else if(!strncmp(msg,".score",6)) {
+
+		char nn[STRING_MAX];
+
+		if(strcmp(msg,".score")) {
+			ssize_t k=Player_Find(players,nplayers,im->usr);
+
+			if(k==-1) {
+				notice(sck,im->usr,GAME_TITLE" %s: your score is 0",im->usr);
+			} else {			
+				notice(sck,im->usr,GAME_TITLE" %s: your score is %zu",im->usr,players[k]->nick,players[k]->score);
+			}
+			
+		} else if(sscanf(msg,".score %s",nn)==1) {
+			ssize_t k=Player_Find(players,nplayers,nn);
+			if(k==-1) {
+				notice(sck,im->usr,GAME_TITLE" %s: player not found",im->usr);
+			} else {
+				notice(sck,im->usr,GAME_TITLE" %s: score of %s is %zu",im->usr,players[k]->nick,players[k]->score);
+			}
+		} 
+	
 	} else if(!strcmp(msg,".top")) {
 			qsort(players,nplayers,sizeof(*players),cmpByScoreDesc);
 			char msg[STRING_MAX];
