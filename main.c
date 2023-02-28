@@ -283,7 +283,7 @@ void parsein(IrcMsg *im) {
 			if(k==-1) {
 				notice(sck,im->usr,GAME_TITLE" %s: your score is 0",im->usr);
 			} else {			
-				notice(sck,im->usr,GAME_TITLE" %s: your score is %zu",im->usr,players[k]->nick,players[k]->score);
+				notice(sck,im->usr,GAME_TITLE" %s: your score is %zu",players[k]->nick,players[k]->score);
 			}
 			
 		} else if(sscanf(msg,".score %s",nn)==1) {
