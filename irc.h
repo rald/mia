@@ -202,6 +202,7 @@ void privmsg(int conn,const char *dst,const char *fmt, ...) {
 		}
 		b[i]='\0';				
 		sprintf(c,"PRIVMSG %s :%s\r\n",dst,b);
+		printf("<< %s", c);
 		Irc_Send(conn,c,strlen(c));
 	}
 
@@ -229,6 +230,7 @@ void notice(int conn,const char *dst,const char *fmt, ...) {
 		}
 		b[i]='\0';				
 		sprintf(c,"NOTICE %s :%s\r\n",dst,b);
+		printf("<< %s", c);
 		Irc_Send(conn,c,strlen(c));
 	}
 
